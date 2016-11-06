@@ -120,30 +120,47 @@ GameWindow {
                 var cell;
                 for(i=0; i<scene.figures.length; i++) {
                     figure = scene.figures[i]
-                    figure.cellY++
-                }
-
-                for(i=0; i<scene.figures.length; i++) {
-                    figure = scene.figures[i]
-                    var isDown = false
-                    for(var j=0;j<figure.children.length;j++){
-                        cell = figure.children[j]
-                        if ( scene.isCellDown(cell) ) {
-                            isDown = true
-                            break;
-                        }
-                    }
+                    var isDown = scene.isFigureDown(figure)
                     if ( isDown ) {
                         scene.moveFigureToStatic(figure)
                     }
                 }
+
+                for(i=0; i<scene.figures.length; i++) {
+                    figure = scene.figures[i]
+                    figure.cellY++
+                }
             }
         }
 
-        Keys.onLeftPressed:  lastFigure.cellX--
-        Keys.onRightPressed: lastFigure.cellX++
+        Keys.onLeftPressed: {
+            if ( lastFigure ) {
+                var cell = scene.mostLeftFigureCell(lastFigure)
+                var mostLeft = lastFigure.cellX + cell.cellX
+                if ( mostLeft > 0)
+                    lastFigure.cellX--
+            }
+        }
+        Keys.onRightPressed: {
+            if ( lastFigure ) {
+                var cell = scene.mostRightFigureCell(lastFigure)
+                var mostRight = lastFigure.cellX + cell.cellX
+                if ( mostRight < scene.gridWidth-1)
+                    lastFigure.cellX++
+            }
+        }
         Keys.onUpPressed:   lastFigure.cellY--
-        Keys.onDownPressed: lastFigure.cellY++
+        Keys.onDownPressed: {
+            if ( lastFigure ) {
+                var isDown = scene.isFigureDown(lastFigure)
+                if ( isDown ) {
+                    scene.moveFigureToStatic(lastFigure)
+                    lastFigure = 0
+                } else {
+                    lastFigure.cellY++
+                }
+            }
+        }
 
         Component.onCompleted: {
             for ( var x = 0; x < scene.gridWidth; x++) {
@@ -174,6 +191,38 @@ GameWindow {
             }
 
             figure.destroy()
+        }
+
+        function mostLeftFigureCell(figure) {
+            var min = figure.children[0]
+            for(var j=1;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( min.cellX > cell.cellX )
+                    min = cell
+            }
+            return min
+        }
+
+        function mostRightFigureCell(figure) {
+            var max = figure.children[0]
+            for(var j=1;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( max.cellX < cell.cellX )
+                    max = cell
+            }
+            return max
+        }
+
+        function isFigureDown(figure) {
+            var isDown = false
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.isCellDown(cell) ) {
+                    isDown = true
+                    break;
+                }
+            }
+            return isDown
         }
 
         function createStaticCellFrom(oldcell){

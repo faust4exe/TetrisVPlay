@@ -331,5 +331,80 @@
         }
     \endcode
 
+    \section2 Checking bounds
+    The last created Figure is under user control, and we dont check the
+    position before moving or after moving.
+    But we need to check for bound to not allow user to move Figure anyplace
+    it can move.
+    For this we need to get Figure most left and most right cell
+    and check bounds before moving it more left or more right
+    \code
+        function mostLeftFigureCell(figure) {
+            var min = figure.children[0]
+            for(var j=1;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( min.cellX > cell.cellX )
+                    min = cell
+            }
+            return min
+        }
+
+        function mostRightFigureCell(figure) {
+            var max = figure.children[0]
+            for(var j=1;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( max.cellX < cell.cellX )
+                    max = cell
+            }
+            return max
+        }
+
+        Keys.onLeftPressed: {
+            if ( lastFigure ) {
+                var cell = scene.mostLeftFigureCell(lastFigure)
+                var mostLeft = lastFigure.cellX + cell.cellX
+                if ( mostLeft > 0)
+                    lastFigure.cellX--
+            }
+        }
+        Keys.onRightPressed: {
+            if ( lastFigure ) {
+                var cell = scene.mostRightFigureCell(lastFigure)
+                var mostRight = lastFigure.cellX + cell.cellX
+                if ( mostRight < scene.gridWidth-1)
+                    lastFigure.cellX++
+            }
+        }
+    \endcode
+
+    Same if we move Figure down we need to check if we didnt reach
+    the bottom of the gamefield or some other cells already.
+    This can be done by using same code as Timer uses but moved to a
+    dedicated function and updated handler of Down key press:
+    \code
+        function isFigureDown(figure) {
+            var isDown = false
+            for(var j=0;j<figure.children.length;j++){
+                cell = figure.children[j]
+                if ( scene.isCellDown(cell) ) {
+                    isDown = true
+                    break;
+                }
+            }
+            return isDown
+        }
+
+        Keys.onDownPressed: {
+            if ( lastFigure ) {
+                var isDown = isFigureDown(lastFigure)
+                if ( isDown ) {
+                    scene.moveFigureToStatic(lastFigure)
+                    lastFigure = 0
+                } else {
+                    lastFigure.cellY++
+                }
+            }
+        }
+    \endcode
 
  */
