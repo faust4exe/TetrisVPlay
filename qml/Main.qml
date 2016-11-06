@@ -69,12 +69,16 @@ GameWindow {
             }
         }// Rectangle with size of logical scene
 
-        Cell {cellX: 0; cellY: 0}
-        Cell {cellX: 0; cellY: 1}
-        Cell {cellX: 1; cellY: 1}
-        Cell {cellX: 1; cellY: 2}
+        Figure{
+            id: figure
+            cellX: 4
+            cellY: 2
+        }
 
-
+        Keys.onLeftPressed: figure.cellX--
+        Keys.onRightPressed: figure.cellX++
+        Keys.onUpPressed: figure.cellY--
+        Keys.onDownPressed: figure.cellY++
 
         Image {
             id: vplayLogo

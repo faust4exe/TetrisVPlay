@@ -9,14 +9,14 @@
 
     \image 00_finalResult.png
 
-    \section2 About Tetris.
+    \section1 About Tetris.
     Tetris is well known arcade game where you have to place falling object
     to fill lines.
     A filled line disappears and gives score.
     As game progress the speed increses and you have less time to think.
     Game is finished when the new object cannot fit into game board.
 
-    \section2 Setting up
+    \section1 Setting up
     - install V-Play SDK from \l {https://v-play.net/download/} {V-Play download page}.
 
     - launch Qt Creator
@@ -25,8 +25,7 @@
     - choose File - New File or Project...  create Empty V-Play 2 Project
     \image 02_chooseProject.png
 
-    \section2 Making gameboard
-
+    \section1 Making gameboard and items
     The gameboard of Tetris is a grid of cells, where each cell can be empty or
     can have an Item in it.
     The Scene object which we already have in Main.qml is having by default
@@ -34,7 +33,7 @@
     which perfectly works for our case,
     when we need to maintain same ratio between height in widths on any screen resolutions.
 
-    \section2 Adding basics
+    \section2 Adding basic cell
     First we need to create a basic item for all Tetris figures.
     This will be new QML type, which will be places in a separate file.
     Right-click on project name in Projects window and select Add New...
@@ -67,8 +66,40 @@
     and we can see the result now.
     \image 03_firstImage.png
 
-    \section2 More basics
-    Now lets add Figure item.
+    \section2 Adding figure
+    Now lets add Figure item, same as we added Cell item in \l {Adding basic cell}.
+
+    In Tetris a Figure is a combination of 4 Cells.
+    So lets move the Cell items from Scene to our Figure object.
+    And dont forget to add Figure properties.
+    \code
+        property int cellSize: 20
+        property int cellX: 0
+        property int cellY: 0
+
+        x: cellX * cellSize
+        y: cellY * cellSize
+    \endcode
+
+    Now we can replace the Cell items from \e {scene} with one Figure,
+    and try to move it to other position, like this
+    \code
+        Figure{
+            id: figure
+            cellX: 4
+            cellY: 2
+        }
+    \endcode
+
+    Also we can add to \e {scene} key press hadlers
+    which will move our \e {figure} around:
+    \code
+        Keys.onLeftPressed:  figure.cellX--
+        Keys.onRightPressed: figure.cellX++
+        Keys.onUpPressed:    figure.cellY--
+        Keys.onDownPressed:  figure.cellY++
+    \endcode
+
 
 
  */
