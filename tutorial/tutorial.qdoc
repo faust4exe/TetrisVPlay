@@ -1,0 +1,26 @@
+/*!
+    \page tetristutorial.html tutorial
+
+    \title Tetris tutorial
+
+    \brief This tutorial will show you how to develop a tetris game using V-Play Game Engine.
+
+    \section2 About tetris.
+    Tetris is well known arcade game where you have to place falling object
+    to fill lines.
+    A filled line disappears and gives score.
+    As game progress the speed increses and you have less time to think.
+    Game is finished when the new object cannot fit into game board.
+
+    \section2 Setting up
+    - install V-Play SDK from \l {https://v-play.net/download/} {V-Play download page}.
+
+    - launch Qt Creator
+    \image 01_startQtCreator.png
+
+    - choose File - New File or Project...  create Empty V-Play 2 Project
+    \image 02_chooseProject.png
+
+    \section2 Making gameboard
+
+ */
