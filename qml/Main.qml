@@ -47,6 +47,15 @@ GameWindow {
             color: "grey"
 
             Text {
+                id: scoreText
+                text: qsTr("Filled lines: ") + scene.filledLines
+                color: "#ffffff"
+                anchors.top: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: mainTimer.running
+            }
+
+            Text {
                 id: textElement
                 // qsTr() uses the internationalization feature for multi-language support
                 text: qsTr("Press to start")
@@ -81,19 +90,19 @@ GameWindow {
             }
         }// Rectangle with size of logical scene
 
-        Figure{
-            id: figure
-            cellX: 4
-            cellY: 2
-            cellSize: scene.cellSize
-        }
+//        Figure{
+//            id: figure
+//            cellX: 4
+//            cellY: 2
+//            cellSize: scene.cellSize
+//        }
 
-        Cell{
-            id:cell
-            cellX: 1
-            cellY: 1
-            cellSize: scene.cellSize
-        }
+//        Cell{
+//            id:cell
+//            cellX: 1
+//            cellY: 1
+//            cellSize: scene.cellSize
+//        }
 
         Timer {
             id: mainTimer

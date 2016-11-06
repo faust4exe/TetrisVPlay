@@ -316,6 +316,20 @@
         }
     \endcode
 
+    \section4 Showing score
+    As the score is already added to our \e {scene} object, and it is
+    calculated as required, we can add a Text object which will reflect if
+    on the top of screen.
+    \code
+        Text {
+            id: scoreText
+            text: qsTr("Filled lines: ") + scene.filledLines
+            color: "#ffffff"
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            visible: mainTimer.running
+        }
+    \endcode
 
 
  */
