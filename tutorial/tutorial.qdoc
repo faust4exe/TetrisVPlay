@@ -223,6 +223,7 @@
     The third is creating a Cell as a copy of one in input
     and assings it to out scene special list of static cells.
 
+    \section2 Table of cells
     As we need to accumulate the items we also need to save the positions
     of the cells which are on bottom and to check the if they dont collide.
     For this we create a table of cells,
@@ -267,6 +268,53 @@
     And we can call addFigure() when the current figure becames static.
     After playing some time we get to this situation.
     \image 05_alotOfStatic.png
+
+    \section3 Check for filled lines
+    After we have table of cells we can check for filled lines.
+    This will be done after a new Figure is becoming static.
+    \code
+        function checkForFilledLines() {
+            for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                var isFull = true
+                for ( var x = 0; x < scene.gridWidth; x++) {
+                    if ( scene.cellsTable[x + y * scene.gridWidth] == 0) {
+                        isFull = false
+                        break
+                    }
+                }
+                if ( isFull ) {
+                    scene.filledLines++
+                    removeFilledLine(y)
+                }
+            }
+        }
+    \endcode
+    If any filled line is found we will remove if and move all above cells donw
+    \code
+        function removeFilledLine(filledY) {
+            // remove the line
+            var x
+            for ( x = 0; x < scene.gridWidth; x++) {
+                if ( scene.cellsTable[x + filledY * scene.gridWidth] != 0) {
+                    var cell = scene.cellsTable[x + filledY * scene.gridWidth]
+                    scene.cellsTable[x + filledY * scene.gridWidth] = 0
+                    cell.destroy()
+                }
+            }
+            // move down all the above lines
+            for ( var y = filledY; y >= 0 ; y-- ) {
+                var isFull = true
+                for ( x = 0; x < scene.gridWidth; x++) {
+                    if ( y == 0 )
+                        scene.cellsTable[x + y * scene.gridWidth] = 0
+                    else {
+                        scene.cellsTable[x + y * scene.gridWidth] = scene.cellsTable[x + (y-1) * scene.gridWidth]
+                        scene.cellsTable[x + y * scene.gridWidth].cellY++
+                    }
+                }
+            }
+        }
+    \endcode
 
 
 

@@ -23,6 +23,7 @@ GameWindow {
     Scene {
         id: scene
 
+        property int filledLines: 0
         property bool createFigureOnTimer: true
         property int cellsNumber: gridHeigth * gridWidth
         property int gridHeigth: height/cellSize
@@ -51,7 +52,7 @@ GameWindow {
                 text: qsTr("Press to start")
                 color: "#ffffff"
                 anchors.centerIn: parent
-                visible: mainTimer.running
+                visible: !mainTimer.running
             }
 
             MouseArea {
@@ -102,6 +103,7 @@ GameWindow {
                 if ( scene.createFigureOnTimer ) {
                     scene.createFigureOnTimer = false
                     scene.addFigure()
+                    scene.checkForFilledLines()
                 }
 
                 var i;
@@ -129,9 +131,9 @@ GameWindow {
             }
         }
 
-        Keys.onLeftPressed: lastFigure.cellX--
+        Keys.onLeftPressed:  lastFigure.cellX--
         Keys.onRightPressed: lastFigure.cellX++
-        Keys.onUpPressed: lastFigure.cellY--
+        Keys.onUpPressed:   lastFigure.cellY--
         Keys.onDownPressed: lastFigure.cellY++
 
         Component.onCompleted: {
@@ -187,6 +189,46 @@ GameWindow {
             }
 
             return ((absY + 1) == scene.gridHeigth)
+        }
+
+        function checkForFilledLines() {
+            for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                var isFull = true
+                for ( var x = 0; x < scene.gridWidth; x++) {
+                    if ( scene.cellsTable[x + y * scene.gridWidth] == 0) {
+                        isFull = false
+                        break
+                    }
+                }
+                if ( isFull ) {
+                    scene.filledLines++
+                    removeFilledLine(y)
+                }
+            }
+        }
+
+        function removeFilledLine(filledY) {
+            // remove the line
+            var x
+            for ( x = 0; x < scene.gridWidth; x++) {
+                if ( scene.cellsTable[x + filledY * scene.gridWidth] != 0) {
+                    var cell = scene.cellsTable[x + filledY * scene.gridWidth]
+                    scene.cellsTable[x + filledY * scene.gridWidth] = 0
+                    cell.destroy()
+                }
+            }
+            // move down all the above lines
+            for ( var y = filledY; y >= 0 ; y-- ) {
+                var isFull = true
+                for ( x = 0; x < scene.gridWidth; x++) {
+                    if ( y == 0 )
+                        scene.cellsTable[x + y * scene.gridWidth] = 0
+                    else {
+                        scene.cellsTable[x + y * scene.gridWidth] = scene.cellsTable[x + (y-1) * scene.gridWidth]
+                        scene.cellsTable[x + y * scene.gridWidth].cellY++
+                    }
+                }
+            }
         }
 
         Image {
