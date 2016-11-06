@@ -23,10 +23,15 @@ GameWindow {
     Scene {
         id: scene
 
-        property int gridHeigh: height/cellSize
+        property bool createFigureOnTimer: true
+        property int cellsNumber: gridHeigth * gridWidth
+        property int gridHeigth: height/cellSize
         property int gridWidth: width/cellSize
         property int cellSize: 20
         property var figures: []
+        property var cells: []
+        property var cellsTable: []
+        property var lastFigure
 
         // the "logical size" - the scene content is auto-scaled to match the GameWindow size
         width: 320
@@ -43,9 +48,10 @@ GameWindow {
             Text {
                 id: textElement
                 // qsTr() uses the internationalization feature for multi-language support
-                text: qsTr("Hello V-Play World")
+                text: qsTr("Press to start")
                 color: "#ffffff"
                 anchors.centerIn: parent
+                visible: mainTimer.running
             }
 
             MouseArea {
@@ -53,7 +59,6 @@ GameWindow {
 
                 // when the rectangle that fits the whole scene is pressed, change the background color and the text
                 onPressed: {
-                    scene.addFigure()
                     mainTimer.running = true
                     textElement.text = qsTr("Scene-Rectangle is pressed at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
                     rectangle.color = "black"
@@ -68,7 +73,7 @@ GameWindow {
                 // revert the text & color after the touch/mouse button was released
                 // also States could be used for that - search for "QML States" in the doc
                 onReleased: {
-                    textElement.text = qsTr("Hello V-Play World")
+                    textElement.text = qsTr("Press to start")
                     rectangle.color = "grey"
                     console.debug("released position:", mouse.x, mouse.y)
                 }
@@ -82,32 +87,106 @@ GameWindow {
             cellSize: scene.cellSize
         }
 
+        Cell{
+            id:cell
+            cellX: 1
+            cellY: 1
+            cellSize: scene.cellSize
+        }
+
         Timer {
             id: mainTimer
             interval: 1000
             repeat: true
             onTriggered: {
-                console.debug("Hello world!")
-                for(var i=0; i<scene.figures.length; i++) {
-                    var figure = scene.figures[i]
+                if ( scene.createFigureOnTimer ) {
+                    scene.createFigureOnTimer = false
+                    scene.addFigure()
+                }
+
+                var i;
+                var figure;
+                var cell;
+                for(i=0; i<scene.figures.length; i++) {
+                    figure = scene.figures[i]
                     figure.cellY++
+                }
+
+                for(i=0; i<scene.figures.length; i++) {
+                    figure = scene.figures[i]
+                    var isDown = false
+                    for(var j=0;j<figure.children.length;j++){
+                        cell = figure.children[j]
+                        if ( scene.isCellDown(cell) ) {
+                            isDown = true
+                            break;
+                        }
+                    }
+                    if ( isDown ) {
+                        scene.moveFigureToStatic(figure)
+                    }
                 }
             }
         }
 
-        Keys.onLeftPressed: figure.cellX--
-        Keys.onRightPressed: figure.cellX++
-        Keys.onUpPressed: figure.cellY--
-        Keys.onDownPressed: figure.cellY++
+        Keys.onLeftPressed: lastFigure.cellX--
+        Keys.onRightPressed: lastFigure.cellX++
+        Keys.onUpPressed: lastFigure.cellY--
+        Keys.onDownPressed: lastFigure.cellY++
+
+        Component.onCompleted: {
+            for ( var x = 0; x < scene.gridWidth; x++) {
+                for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                    scene.cellsTable[x + y * scene.gridWidth] = 0
+                }
+            }
+        }
 
         function addFigure(){
             var component = Qt.createComponent("Figure.qml");
             if (component.status == Component.Ready) {
                 var figure = component.createObject(scene);
-                figure.cellX = 5
+                figure.cellX = 6
                 figure.cellY = 0
+                scene.figures.push(figure)
+                lastFigure = figure
             }
-            scene.figures.push(figure)
+        }
+
+        function moveFigureToStatic(figure) {
+            var index = scene.figures.indexOf(figure)
+            scene.figures.splice(index, 1)
+
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                scene.createStaticCellFrom(cell)
+            }
+
+            figure.destroy()
+        }
+
+        function createStaticCellFrom(oldcell){
+            var component = Qt.createComponent("Cell.qml");
+            if (component.status == Component.Ready) {
+                var cell = component.createObject(scene);
+                var absX = oldcell.cellX + oldcell.parent.cellX
+                var absY = oldcell.cellY + oldcell.parent.cellY
+                cell.cellX = absX
+                cell.cellY = absY
+                scene.cellsTable[absX + absY * scene.gridWidth] = cell
+                scene.cells.push(cell)
+                scene.createFigureOnTimer = true
+            }
+        }
+
+        function isCellDown(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            if ( scene.cellsTable[absX + (absY+1) * scene.gridWidth] != 0) {
+                return true;
+            }
+
+            return ((absY + 1) == scene.gridHeigth)
         }
 
         Image {

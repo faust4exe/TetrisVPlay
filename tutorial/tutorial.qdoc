@@ -165,4 +165,109 @@
     After some clicking we can get this result
     \image 04_alotofFigures.png
 
+    \section2 Stopping figures
+    As figures reach the bottom side they need to stop and accululate.
+    For this we will create a list of static Cells which we will get from
+    Figures which rich the bottom line.
+
+    First lets add bottom line detection in Timer trigger handler:
+    \code
+        for(i=0; i<scene.figures.length; i++) {
+            figure = scene.figures[i]
+            var isDown = false
+            for(var j=0;j<figure.children.length;j++){
+                cell = figure.children[j]
+                if ( scene.isCellDown(cell) ) {
+                    isDown = true
+                    break;
+                }
+            }
+            if ( isDown ) {
+                scene.moveFigureToStatic(figure)
+            }
+        }
+    \endcode
+
+    For this we will need some more functions in our scene :
+    \code
+        function isCellDown(cell) {
+            var cellY = cell.cellY
+            var parentY = cell.parent.cellY
+            return ((cellY + parentY + 1) == scene.gridHeigth)
+        }
+        ...
+        function moveFigureToStatic(figure) {
+            var index = scene.figures.indexOf(figure)
+            scene.figures.splice(index, 1)
+
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                scene.createStaticCellFrom(cell)
+            }
+
+            figure.destroy()
+        }
+
+        function createStaticCellFrom(oldcell){
+            var component = Qt.createComponent("Cell.qml");
+            if (component.status == Component.Ready) {
+                var cell = component.createObject(scene);
+                cell.cellX = oldcell.cellX + oldcell.parent.cellX
+                cell.cellY = oldcell.cellY + oldcell.parent.cellY
+                scene.cells.push(cell)
+            }
+        }
+    \endcode
+    First one is checking if cell is at the botton of scene.
+    The second one is calling a function for all Cell of Figure.
+    The third is creating a Cell as a copy of one in input
+    and assings it to out scene special list of static cells.
+
+    As we need to accumulate the items we also need to save the positions
+    of the cells which are on bottom and to check the if they dont collide.
+    For this we create a table of cells,
+    and update its data on Cell becoming static,
+    and check them when Figure is going donw. Like this:
+    \code
+        Component.onCompleted: {
+            for ( var x = 0; x < scene.gridWidth; x++) {
+                for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                    scene.cellsTable[x][y] = 0
+                }
+            }
+        }
+        ...
+        function createStaticCellFrom(oldcell){
+            var component = Qt.createComponent("Cell.qml");
+            if (component.status == Component.Ready) {
+                var cell = component.createObject(scene);
+                var absX = oldcell.cellX + oldcell.parent.cellX
+                var absY = oldcell.cellY + oldcell.parent.cellY
+                cell.cellX = absX
+                cell.cellY = absY
+                scene.cellsTable[absX + absY * scene.gridWidth] = cell
+                scene.cells.push(cell)
+            }
+        }
+
+        function isCellDown(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            if ( scene.cellsTable[absX + (absY+1) * scene.gridWidth] != 0) {
+                return true;
+            }
+
+            return ((absY + 1) == scene.gridHeigth)
+        }
+
+    \endcode
+
+    Also after saving the latest created figure, we can move it same
+    as we did with \e {figure} before.
+    And we can call addFigure() when the current figure becames static.
+    After playing some time we get to this situation.
+    \image 05_alotOfStatic.png
+
+
+
  */
