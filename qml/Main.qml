@@ -27,6 +27,8 @@ GameWindow {
         width: 320
         height: 480
 
+
+
         // background rectangle matching the logical scene size (= safe zone available on all devices)
         // see here for more details on content scaling and safe zone: http://v-play.net/doc/vplay-different-screen-sizes/
         Rectangle {
@@ -66,6 +68,13 @@ GameWindow {
                 }
             }
         }// Rectangle with size of logical scene
+
+        Cell {cellX: 0; cellY: 0}
+        Cell {cellX: 0; cellY: 1}
+        Cell {cellX: 1; cellY: 1}
+        Cell {cellX: 1; cellY: 2}
+
+
 
         Image {
             id: vplayLogo

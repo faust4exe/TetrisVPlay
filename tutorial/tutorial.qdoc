@@ -5,7 +5,11 @@
 
     \brief This tutorial will show you how to develop a tetris game using V-Play Game Engine.
 
-    \section2 About tetris.
+    \section2 How to Make a Tetris game with V-Play
+
+    \image 00_finalResult.png
+
+    \section2 About Tetris.
     Tetris is well known arcade game where you have to place falling object
     to fill lines.
     A filled line disappears and gives score.
@@ -22,5 +26,49 @@
     \image 02_chooseProject.png
 
     \section2 Making gameboard
+
+    The gameboard of Tetris is a grid of cells, where each cell can be empty or
+    can have an Item in it.
+    The Scene object which we already have in Main.qml is having by default
+    \e {scaleMode} equal to \e {letterbox},
+    which perfectly works for our case,
+    when we need to maintain same ratio between height in widths on any screen resolutions.
+
+    \section2 Adding basics
+    First we need to create a basic item for all Tetris figures.
+    This will be new QML type, which will be places in a separate file.
+    Right-click on project name in Projects window and select Add New...
+    V-Play provides you with some basic class types, we need a simple Item.
+    It will be named Cell.
+    Now lets change the basic element type from Item to Rectanle,
+    as we need some graphics for our future cell.
+    And change it's color property to red.
+    Also we need some custom properties like cellX, cellY and cellSize.
+    They will define cell position and size inside of gameboard. This is how it look in code
+    \code
+        property int cellSize: 20
+        property int cellX: 0
+        property int cellY: 0
+
+        x: cellX * cellSize
+        y: cellY * cellSize
+        width: cellSize
+        height: cellSize
+    \endcode
+
+    Lets add some Cell items to our \e {scene} after the \e {rectanle} object
+    like this
+    \code
+        Cell {cellX: 0; cellY: 0}
+        Cell {cellX: 0; cellY: 1}
+        Cell {cellX: 1; cellY: 1}
+        Cell {cellX: 1; cellY: 2}
+    \endcode
+    and we can see the result now.
+    \image 03_firstImage.png
+
+    \section2 More basics
+    Now lets add Figure item.
+
 
  */
