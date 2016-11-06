@@ -23,10 +23,14 @@ GameWindow {
     Scene {
         id: scene
 
+        property int gridHeigh: height/cellSize
+        property int gridWidth: width/cellSize
+        property int cellSize: 20
+        property var figures: []
+
         // the "logical size" - the scene content is auto-scaled to match the GameWindow size
         width: 320
         height: 480
-
 
 
         // background rectangle matching the logical scene size (= safe zone available on all devices)
@@ -49,6 +53,8 @@ GameWindow {
 
                 // when the rectangle that fits the whole scene is pressed, change the background color and the text
                 onPressed: {
+                    scene.addFigure()
+                    mainTimer.running = true
                     textElement.text = qsTr("Scene-Rectangle is pressed at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
                     rectangle.color = "black"
                     console.debug("pressed position:", mouse.x, mouse.y)
@@ -73,12 +79,36 @@ GameWindow {
             id: figure
             cellX: 4
             cellY: 2
+            cellSize: scene.cellSize
+        }
+
+        Timer {
+            id: mainTimer
+            interval: 1000
+            repeat: true
+            onTriggered: {
+                console.debug("Hello world!")
+                for(var i=0; i<scene.figures.length; i++) {
+                    var figure = scene.figures[i]
+                    figure.cellY++
+                }
+            }
         }
 
         Keys.onLeftPressed: figure.cellX--
         Keys.onRightPressed: figure.cellX++
         Keys.onUpPressed: figure.cellY--
         Keys.onDownPressed: figure.cellY++
+
+        function addFigure(){
+            var component = Qt.createComponent("Figure.qml");
+            if (component.status == Component.Ready) {
+                var figure = component.createObject(scene);
+                figure.cellX = 5
+                figure.cellY = 0
+            }
+            scene.figures.push(figure)
+        }
 
         Image {
             id: vplayLogo

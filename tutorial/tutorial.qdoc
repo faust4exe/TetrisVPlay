@@ -100,6 +100,69 @@
         Keys.onDownPressed:  figure.cellY++
     \endcode
 
+    \section1 Lets add more relation and logic
+    Now lets add more rules to our gameboard.
+    We are going to have gameboard of size 16 x 24 cells.
+    For our \e {scene} size of 320 x 480, this results in cell size equal with 20.
+    Let add a property for this, which will be used by all figures.
+    \code
+        property int cellSize: 40
+    \endcode
+    And dont forget to add usage of it into Figure and Cells of Figure like this
+    \code
+        cellSize: scene.cellSize
+    \endcode
 
+    \section2 Action now!
+    Finally lets add some life to the items we have.
+    The first thing we need is a Timer. The properties we need
+    is interval, it is how often it triggers, and the handler
+    of trigger event. This will look like this initially:
+    \code
+        Timer {
+            id: mainTimer
+            interval: 1000
+            repeat: true
+            onTriggered: {
+                console.debug("Hello world!")
+            }
+        }
+    \endcode
+    Also the timer is not started initially, so lets add this function
+    to the MouseArea which already it presend in the scene:
+    \code
+        mainTimer.running = true
+    \endcode
+
+    \section2 More dynamics
+    The figures now need to be dynamicaly created.
+    For this we will add a function and a property to our scene object:
+    \code
+        property var figures: []
+        ...
+        function addFigure(){
+            var component = Qt.createComponent("Figure.qml");
+            if (component.status == Component.Ready) {
+                var figure = component.createObject(scene);
+                figure.cellX = 5
+                figure.cellY = 0
+            }
+            scene.figures.push(figure)
+        }
+    \endcode
+    This function will create a Figure object and will add them to scene
+    list of figures. Also lets call this add Figure in MouseArea press handler,
+    and the Timer handler now will move all scene figures down by one position.
+    \code
+        onTriggered: {
+            for(var i=0; i<scene.figures.length; i++) {
+                var figure = scene.figures[i]
+                figure.cellY++
+            }
+        }
+    \endcode
+
+    After some clicking we can get this result
+    \image 04_alotofFigures.png
 
  */
