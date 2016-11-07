@@ -15,4 +15,8 @@ Rectangle {
     width: cellSize
     height: cellSize
 
+    function set(x, y) {
+        cellX = x
+        cellY = y
+    }
 }

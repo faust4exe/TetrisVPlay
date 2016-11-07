@@ -407,4 +407,40 @@
         }
     \endcode
 
+    \section1 Adding more Figure types
+    The figures types are just different placement of cells in figure.
+    We will set the type of figure by a \e {type} property, which
+    will define default placement of cell in figure. The code is pretty simple
+    and consists of cell setup for each possible type of Figure
+    \code
+        onTypeChanged: {
+            switch( type ) {
+            case 0: // space
+                c1.set(0, 0); c2.set(1, 0); c3.set(2, 0); c4.set(3, 0)
+                break;
+            case 1: // --|
+                c1.set(0, 0); c2.set(1, 0); c3.set(2, 0); c4.set(2, 1)
+                break;
+            case 2: // -|-
+                c1.set(0, 0); c2.set(1, 0); c3.set(1, 1); c4.set(2, 0)
+                break;
+            case 3: // |--
+                c1.set(0, 0); c2.set(0, 1); c3.set(1, 0); c4.set(2, 0)
+                break;
+            case 4: // --__
+                c1.set(0, 0); c2.set(1, 0); c3.set(1, 1); c4.set(2, 1)
+                break;
+            case 5: // ==
+                c1.set(0, 0); c2.set(0, 1); c3.set(1, 0); c4.set(1, 1)
+                break;
+            case 6: // __--
+                c1.set(0, 1); c2.set(1, 1); c3.set(1, 0); c4.set(2, 0)
+                break;
+            }
+        }
+    \endcode
+    Also we can add a static Item which will preview next Figure which will
+    appear after current will become static, and the result will look like this
+    \image 06_allFigureTypes.png
+
  */

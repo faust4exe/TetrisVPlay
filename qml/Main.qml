@@ -56,6 +56,16 @@ GameWindow {
             }
 
             Text {
+                id: nextElement
+                // qsTr() uses the internationalization feature for multi-language support
+                text: qsTr("Next")
+                color: "#ffffff"
+                anchors.left: parent.left
+                anchors.top: parent.top
+                visible: mainTimer.running
+            }
+
+            Text {
                 id: textElement
                 // qsTr() uses the internationalization feature for multi-language support
                 text: qsTr("Press to start")
@@ -90,12 +100,13 @@ GameWindow {
             }
         }// Rectangle with size of logical scene
 
-//        Figure{
-//            id: figure
-//            cellX: 4
-//            cellY: 2
-//            cellSize: scene.cellSize
-//        }
+        Figure{
+            id: nextFigure
+            cellX: 0
+            cellY: 1
+            cellSize: scene.cellSize
+            type: 0
+        }
 
 //        Cell{
 //            id:cell
@@ -176,6 +187,8 @@ GameWindow {
                 var figure = component.createObject(scene);
                 figure.cellX = 6
                 figure.cellY = 0
+                figure.type = nextFigure.type
+                nextFigure.nextType()
                 scene.figures.push(figure)
                 lastFigure = figure
             }
