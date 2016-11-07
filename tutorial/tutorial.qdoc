@@ -527,5 +527,69 @@
         }
     \endcode
 
+    \section2 More advanced bounds check
+    At the moment when moving our Figure to left or right
+    we dont check if we can overlap with other cells.
+    This can be done by checking all cells item on left of right
+    \code
+        function canMoveToLeft(figure) {
+            var canMove = true
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellOnLeft(cell) ) {
+                    canMove = false
+                    break;
+                }
+            }
+            return canMove
+        }
+
+        function canMoveToRight(figure) {
+            var canMove = true
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellOnRight(cell) ) {
+                    canMove = false
+                    break;
+                }
+            }
+            return canMove
+        }
+
+
+        function hasCellOnLeft(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            return hasCellOnPosition(absX-1, absY)
+        }
+
+        function hasCellOnRight(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            return hasCellOnPosition(absX+1, absY)
+        }
+
+        function hasCellOnPosition(x, y) {
+            if ( scene.cellsTable[x + y * scene.gridWidth] != 0) {
+                return true;
+            } else
+                return false;
+        }
+    \endcode
+    First and second functions call check function for all Figure cells.
+    Next two functions are getting cell absolute position and call
+    a function which is checking the table of cell for existing cells
+    on respective position.
+
+    \section1 At the moment
+    Now the game has main logic of tetris, it can handle user input,
+    has possibility to restart on end.
+    This is actually the basics for a game, but as any other simple game
+    there is possibility to add a lot of different functionalities,
+    the UI could be changed to use some beautiful images,
+    the events could be accented by sounds.
+
+    Please check the possibilities of \l {http://v-play.net/doc/vplay-group/} {V-Play Game Engine}
+    and try yourself to improve the existing code with anything you want.
 
  */

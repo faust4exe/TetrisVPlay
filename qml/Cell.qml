@@ -4,7 +4,7 @@ import QtQuick 2.0
 
 Rectangle {
     id: item
-    color: "red"
+    color: "blue"
 
     property int cellSize: 20
     property int cellX: 0

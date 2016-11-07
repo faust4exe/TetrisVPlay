@@ -143,6 +143,8 @@ GameWindow {
 
         Keys.onLeftPressed: {
             if ( lastFigure ) {
+                if ( !canMoveToLeft(lastFigure) )
+                    return
                 var cell = scene.mostLeftFigureCell(lastFigure)
                 var mostLeft = lastFigure.cellX + cell.cellX
                 if ( mostLeft > 0)
@@ -151,6 +153,8 @@ GameWindow {
         }
         Keys.onRightPressed: {
             if ( lastFigure ) {
+                if ( !canMoveToRight(lastFigure) )
+                    return
                 var cell = scene.mostRightFigureCell(lastFigure)
                 var mostRight = lastFigure.cellX + cell.cellX
                 if ( mostRight < scene.gridWidth-1)
@@ -265,6 +269,30 @@ GameWindow {
             return max
         }
 
+        function canMoveToLeft(figure) {
+            var canMove = true
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellOnLeft(cell) ) {
+                    canMove = false
+                    break;
+                }
+            }
+            return canMove
+        }
+
+        function canMoveToRight(figure) {
+            var canMove = true
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellOnRight(cell) ) {
+                    canMove = false
+                    break;
+                }
+            }
+            return canMove
+        }
+
         function isFigureDown(figure) {
             var isDown = false
             for(var j=0;j<figure.children.length;j++){
@@ -306,20 +334,36 @@ GameWindow {
         function isCellDown(cell) {
             var absX = cell.cellX + cell.parent.cellX
             var absY = cell.cellY + cell.parent.cellY
-            if ( scene.cellsTable[absX + (absY+1) * scene.gridWidth] != 0) {
+            if ( hasCellOnPosition(absX, absY+1)) {
                 return true;
             }
 
             return ((absY + 1) == scene.gridHeigth)
         }
 
-        function hasCellUnder(cell) {
-            var absX = cell.cellX + cell.parent.cellX
-            var absY = cell.cellY + cell.parent.cellY
-            if ( scene.cellsTable[absX + absY * scene.gridWidth] != 0) {
+        function hasCellOnPosition(x, y) {
+            if ( scene.cellsTable[x + y * scene.gridWidth] != 0) {
                 return true;
             } else
                 return false;
+        }
+
+        function hasCellOnLeft(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            return hasCellOnPosition(absX-1, absY)
+        }
+
+        function hasCellOnRight(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            return hasCellOnPosition(absX+1, absY)
+        }
+
+        function hasCellUnder(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            return hasCellOnPosition(absX, absY)
         }
 
         function checkForFilledLines() {
@@ -356,7 +400,10 @@ GameWindow {
                         scene.cellsTable[x + y * scene.gridWidth] = 0
                     else {
                         scene.cellsTable[x + y * scene.gridWidth] = scene.cellsTable[x + (y-1) * scene.gridWidth]
-                        scene.cellsTable[x + y * scene.gridWidth].cellY++
+                        var cellToMove = scene.cellsTable[x + y * scene.gridWidth]
+                        if ( cellToMove ) {
+                            cellToMove.cellY++
+                        }
                     }
                 }
             }

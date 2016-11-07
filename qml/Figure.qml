@@ -6,7 +6,7 @@ Rectangle {
     id: figure
 
     property bool backVisible: false
-    property color cellsColor: "blue"
+    property color cellsColor: "lightblue"
     property int cellSize: 20
     property int cellX: 0
     property int cellY: 0
@@ -51,7 +51,6 @@ Rectangle {
     }
 
     function nextType() {
-        console.debug(Math.random()*7 + " " + Math.random())
         type = Math.random() * 7
     }
 
