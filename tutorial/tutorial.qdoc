@@ -409,6 +409,7 @@
 
     \section1 Adding more Figure types
     The figures types are just different placement of cells in figure.
+    \image 07_figureTypes.png
     We will set the type of figure by a \e {type} property, which
     will define default placement of cell in figure. The code is pretty simple
     and consists of cell setup for each possible type of Figure
@@ -442,5 +443,72 @@
     Also we can add a static Item which will preview next Figure which will
     appear after current will become static, and the result will look like this
     \image 06_allFigureTypes.png
+
+    \section1 Game Over handler
+    Now lets add the handler of game over situation.
+    In the case of tetris the game over if at the moment when new Figure
+    was placed on top of existing cells.
+    The functions are similar to checking if Figure can move down from
+    \l {Stopping figures}
+    \code
+        function isPlacedOnTopOfCells (lastFigure) {
+            var isOnTop = false
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellUnder(cell) ) {
+                    isOnTop = true
+                    break;
+                }
+            }
+            return isOnTop
+        }
+
+        function hasCellUnder(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            if ( scene.cellsTable[absX + absY * scene.gridWidth] != 0) {
+                return true;
+            } else
+                return false;
+        }
+    \endcode
+
+    But some other code needs to be added to make restart of the game
+    possible and to catch the game over situation, like next lines
+    \code
+        if ( scene.isPlacedOnTopOfCells (lastFigure) ) {
+            handleGameOver()
+        }
+    \endcode
+    in the end of \e {addFigure()} function.
+    And the restart handler itself
+    \code
+        function restartGame() {
+            scene.filledLines = 0
+
+            // clear cells table
+            for ( var x = 0; x < scene.gridWidth; x++) {
+                for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                    scene.cellsTable[x + y * scene.gridWidth] = 0
+                }
+            }
+
+            //remove cells
+            for(var j=0;j<scene.cells.length;j++){
+                var cell = scene.cells[j]
+                cell.destroy()
+            }
+            scene.cells = []
+
+            // remove figures
+            for(var j=0;j<scene.figures.length;j++){
+                var figure = scene.figures[j]
+                figure.destroy()
+            }
+            scene.figures = []
+
+            lastFigure = 0
+        }
+    \endcode
 
  */

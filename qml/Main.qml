@@ -24,6 +24,7 @@ GameWindow {
         id: scene
 
         property int filledLines: 0
+        property bool needRestart: false
         property bool createFigureOnTimer: true
         property int cellsNumber: gridHeigth * gridWidth
         property int gridHeigth: height/cellSize
@@ -79,14 +80,18 @@ GameWindow {
 
                 // when the rectangle that fits the whole scene is pressed, change the background color and the text
                 onPressed: {
+                    if ( scene.needRestart ) {
+                        scene.needRestart = false
+                        scene.restartGame()
+                    }
                     mainTimer.running = true
                     textElement.text = qsTr("Scene-Rectangle is pressed at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
-                    rectangle.color = "black"
+//                    rectangle.color = "black"
                     console.debug("pressed position:", mouse.x, mouse.y)
                 }
 
                 onPositionChanged: {
-                    textElement.text = qsTr("Scene-Rectangle is moved at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
+//                    textElement.text = qsTr("Scene-Rectangle is moved at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
                     console.debug("mouseMoved or touchDragged position:", mouse.x, mouse.y)
                 }
 
@@ -94,7 +99,7 @@ GameWindow {
                 // also States could be used for that - search for "QML States" in the doc
                 onReleased: {
                     textElement.text = qsTr("Press to start")
-                    rectangle.color = "grey"
+//                 /   rectangle.color = "grey"
                     console.debug("released position:", mouse.x, mouse.y)
                 }
             }
@@ -174,11 +179,7 @@ GameWindow {
         }
 
         Component.onCompleted: {
-            for ( var x = 0; x < scene.gridWidth; x++) {
-                for ( var y = 0; y < scene.gridHeigth; y++ ) {
-                    scene.cellsTable[x + y * scene.gridWidth] = 0
-                }
-            }
+            restartGame()
         }
 
         function addFigure(){
@@ -191,7 +192,49 @@ GameWindow {
                 nextFigure.nextType()
                 scene.figures.push(figure)
                 lastFigure = figure
+
+                if ( scene.isPlacedOnTopOfCells (lastFigure) ) {
+                    handleGameOver()
+                }
             }
+        }
+
+        function restartGame() {
+            scene.filledLines = 0
+
+            // clear cells table
+            for ( var x = 0; x < scene.gridWidth; x++) {
+                for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                    scene.cellsTable[x + y * scene.gridWidth] = 0
+                }
+            }
+
+            //remove cells
+            for(var j=0;j<scene.cells.length;j++){
+                var cell = scene.cells[j]
+                cell.destroy()
+            }
+            scene.cells = []
+
+            // remove figures
+            for(var j=0;j<scene.figures.length;j++){
+                var figure = scene.figures[j]
+                figure.destroy()
+            }
+            scene.figures = []
+
+            lastFigure = 0
+            rectangle.z = 0
+            rectangle.opacity = 1
+        }
+
+        function handleGameOver() {
+            mainTimer.running = false
+            textElement.text = "Game Over\n\n Your score is " + scene.filledLines
+            textElement.text = textElement.text + " \n\n Click to restart the game"
+            scene.needRestart = true
+            rectangle.z = 1000
+            rectangle.opacity = 0.75
         }
 
         function moveFigureToStatic(figure) {
@@ -238,6 +281,18 @@ GameWindow {
             return isDown
         }
 
+        function isPlacedOnTopOfCells (figure) {
+            var isOnTop = false
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                if ( scene.hasCellUnder(cell) ) {
+                    isOnTop = true
+                    break;
+                }
+            }
+            return isOnTop
+        }
+
         function createStaticCellFrom(oldcell){
             var component = Qt.createComponent("Cell.qml");
             if (component.status == Component.Ready) {
@@ -260,6 +315,15 @@ GameWindow {
             }
 
             return ((absY + 1) == scene.gridHeigth)
+        }
+
+        function hasCellUnder(cell) {
+            var absX = cell.cellX + cell.parent.cellX
+            var absY = cell.cellY + cell.parent.cellY
+            if ( scene.cellsTable[absX + absY * scene.gridWidth] != 0) {
+                return true;
+            } else
+                return false;
         }
 
         function checkForFilledLines() {
