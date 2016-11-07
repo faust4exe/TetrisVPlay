@@ -581,6 +581,29 @@
     a function which is checking the table of cell for existing cells
     on respective position.
 
+    \section1 Increasing complexity
+    At the moment the game timer is triggering every second,
+    and the user has enough time to think and place figures at correct
+    location, as result the game could be played very long.
+    Usually this kind of games are increasing their speed with time
+    so that player if forced to end the game soon,
+    and a bigger score requires more game play experience.
+    Lets increase the speed of every other figure with some value.
+    \codeline mainTimer.interval -= 10
+    in the addFigure() function
+
+    The result which is possible to get was like this
+    \image 08_maxScore.png
+
+    But at some point the interval stopped, because the value of interval
+    became 0, so a better way to increase complexity of game will be
+    to decrease value by a percentage, like 1%
+    and keep minimal value at 50
+    \code
+        mainTimer.interval -= mainTimer.interval * 0.01
+        mainTimer.interval = Math.max(50, mainTimer.interval)
+    \endcode
+
     \section1 At the moment
     Now the game has main logic of tetris, it can handle user input,
     has possibility to restart on end.

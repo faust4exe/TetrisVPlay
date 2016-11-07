@@ -31,7 +31,6 @@ GameWindow {
         property int gridWidth: width/cellSize
         property int cellSize: 20
         property var figures: []
-        property var cells: []
         property var cellsTable: []
         property var lastFigure
 
@@ -84,9 +83,9 @@ GameWindow {
                         scene.needRestart = false
                         scene.restartGame()
                     }
+
                     mainTimer.running = true
                     textElement.text = qsTr("Scene-Rectangle is pressed at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
-                    console.debug("pressed position:", mouse.x, mouse.y)
                 }
 
                 onPositionChanged: {
@@ -97,7 +96,6 @@ GameWindow {
                 // also States could be used for that - search for "QML States" in the doc
                 onReleased: {
                     textElement.text = qsTr("Press to start")
-                    console.debug("released position:", mouse.x, mouse.y)
                 }
             }
         }// Rectangle with size of logical scene
@@ -196,25 +194,26 @@ GameWindow {
                 if ( scene.isPlacedOnTopOfCells (lastFigure) ) {
                     handleGameOver()
                 }
+
+                mainTimer.interval -= mainTimer.interval * 0.01
+                mainTimer.interval = Math.max(50, mainTimer.interval)
             }
         }
 
         function restartGame() {
+            scene.createFigureOnTimer = true
             scene.filledLines = 0
+            mainTimer.interval = 1000
 
             // clear cells table
             for ( var x = 0; x < scene.gridWidth; x++) {
                 for ( var y = 0; y < scene.gridHeigth; y++ ) {
+                    var cell = scene.cellsTable[x + y * scene.gridWidth]
                     scene.cellsTable[x + y * scene.gridWidth] = 0
+                    if ( cell )
+                        cell.destroy()
                 }
             }
-
-            //remove cells
-            for(var j=0;j<scene.cells.length;j++){
-                var cell = scene.cells[j]
-                cell.destroy()
-            }
-            scene.cells = []
 
             // remove figures
             for(var j=0;j<scene.figures.length;j++){
@@ -246,6 +245,7 @@ GameWindow {
                 scene.createStaticCellFrom(cell)
             }
 
+            scene.createFigureOnTimer = true
             figure.destroy()
         }
 
@@ -318,16 +318,17 @@ GameWindow {
         }
 
         function createStaticCellFrom(oldcell){
+            var absX = oldcell.cellX + oldcell.parent.cellX
+            var absY = oldcell.cellY + oldcell.parent.cellY
+            if ( scene.cellsTable[absX + absY * scene.gridWidth] != 0 )
+                return
+
             var component = Qt.createComponent("Cell.qml");
             if (component.status == Component.Ready) {
                 var cell = component.createObject(scene);
-                var absX = oldcell.cellX + oldcell.parent.cellX
-                var absY = oldcell.cellY + oldcell.parent.cellY
                 cell.cellX = absX
                 cell.cellY = absY
                 scene.cellsTable[absX + absY * scene.gridWidth] = cell
-                scene.cells.push(cell)
-                scene.createFigureOnTimer = true
             }
         }
 
@@ -389,9 +390,11 @@ GameWindow {
                 if ( scene.cellsTable[x + filledY * scene.gridWidth] != 0) {
                     var cell = scene.cellsTable[x + filledY * scene.gridWidth]
                     scene.cellsTable[x + filledY * scene.gridWidth] = 0
-                    cell.destroy()
+                    if ( cell )
+                        cell.destroy()
                 }
             }
+
             // move down all the above lines
             for ( var y = filledY; y >= 0 ; y-- ) {
                 var isFull = true
@@ -438,6 +441,5 @@ GameWindow {
                 }
             }
         }
-
     }
 }
