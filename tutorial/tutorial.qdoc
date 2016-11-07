@@ -511,4 +511,21 @@
         }
     \endcode
 
+    \section2 Rotating figures
+    Now lets add the rotate functionaliity for our current figure.
+    For this we will need to move each cell of figure around center of figure.
+    This how code will look for Figure item
+    \code
+        function rotateFigure() {
+            for(var j=0;j<figure.children.length;j++){
+                var cell = figure.children[j]
+                var centerX = cell.cellX
+                var centerY = cell.cellY
+                cell.cellX = 3 - centerY
+                cell.cellY = centerX
+            }
+        }
+    \endcode
+
+
  */

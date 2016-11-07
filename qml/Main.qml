@@ -86,12 +86,10 @@ GameWindow {
                     }
                     mainTimer.running = true
                     textElement.text = qsTr("Scene-Rectangle is pressed at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
-//                    rectangle.color = "black"
                     console.debug("pressed position:", mouse.x, mouse.y)
                 }
 
                 onPositionChanged: {
-//                    textElement.text = qsTr("Scene-Rectangle is moved at position " + Math.round(mouse.x) + "," + Math.round(mouse.y))
                     console.debug("mouseMoved or touchDragged position:", mouse.x, mouse.y)
                 }
 
@@ -99,7 +97,6 @@ GameWindow {
                 // also States could be used for that - search for "QML States" in the doc
                 onReleased: {
                     textElement.text = qsTr("Press to start")
-//                 /   rectangle.color = "grey"
                     console.debug("released position:", mouse.x, mouse.y)
                 }
             }
@@ -111,14 +108,9 @@ GameWindow {
             cellY: 1
             cellSize: scene.cellSize
             type: 0
+            backVisible: true
+            cellsColor: "blue"
         }
-
-//        Cell{
-//            id:cell
-//            cellX: 1
-//            cellY: 1
-//            cellSize: scene.cellSize
-//        }
 
         Timer {
             id: mainTimer
@@ -165,7 +157,11 @@ GameWindow {
                     lastFigure.cellX++
             }
         }
-        Keys.onUpPressed:   lastFigure.cellY--
+        Keys.onUpPressed: {
+            if ( lastFigure ) {
+                lastFigure.rotateFigure()
+            }
+        }
         Keys.onDownPressed: {
             if ( lastFigure ) {
                 var isDown = scene.isFigureDown(lastFigure)
